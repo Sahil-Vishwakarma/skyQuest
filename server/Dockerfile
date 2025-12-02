@@ -6,12 +6,12 @@ WORKDIR /server
 # Install dependencies
 RUN apk add --no-cache git
 
-# Copy go mod files
-COPY go.mod go.sum ./
+# Copy go mod files (paths relative to project root for Railway)
+COPY server/go.mod server/go.sum ./
 RUN go mod download
 
 # Copy source code
-COPY . .
+COPY server/ .
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/api
