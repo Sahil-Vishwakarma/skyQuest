@@ -1,0 +1,63 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: skyquest-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=skyquest
+    networks:
+      - skyquest-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: skyquest-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - skyquest-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: skyquest-server
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - MONGO_URI=mongodb://mongodb:27017
+      - MONGO_DB=skyquest
+      - REDIS_ADDR=redis:6379
+      - AVIATIONSTACK_API_KEY=35934fb8f8f94d7667a970b0ef4d6a63
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - skyquest-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: skyquest-client
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    networks:
+      - skyquest-network
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  skyquest-network:
+    driver: bridge
+
