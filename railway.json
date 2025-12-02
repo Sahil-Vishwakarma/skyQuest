@@ -3,6 +3,7 @@
   "build": {
     "builder": "DOCKERFILE",
     "dockerfilePath": "server/Dockerfile",
+    "buildContext": "server",
     "watchPatterns": ["server/**"]
   },
   "deploy": {
