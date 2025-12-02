@@ -8,8 +8,9 @@ import type {
   LeaderboardResponse,
   Difficulty,
 } from '../types'
+import { getApiUrl } from '../config'
 
-const API_BASE = '/api'
+const API_BASE = getApiUrl('/api')
 
 class ApiError extends Error {
   constructor(public status: number, message: string) {

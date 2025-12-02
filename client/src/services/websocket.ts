@@ -1,4 +1,5 @@
 import type { WSMessage, Flight } from '../types'
+import { getWsUrl } from '../config'
 
 type MessageHandler = (message: WSMessage) => void
 
@@ -19,7 +20,7 @@ class WebSocketService {
       return
     }
 
-    const wsUrl = `ws://${window.location.host}/ws${sessionId ? `?sessionId=${sessionId}` : ''}`
+    const wsUrl = getWsUrl(sessionId)
     this.sessionId = sessionId || null
 
     try {
