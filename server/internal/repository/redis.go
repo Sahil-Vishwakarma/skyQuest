@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
+	"log"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -19,22 +19,31 @@ type RedisClient struct {
 	client *redis.Client
 }
 
-func NewRedisClient(addr, password string, useTLS bool) *RedisClient {
-	opts := &redis.Options{
-		Addr:     addr,
-		Password: password,
-		DB:       0,
+// NewRedisClient creates a Redis client from a URL
+// URL format: redis://user:password@host:port or rediss://... for TLS
+func NewRedisClient(redisURL string) (*RedisClient, error) {
+	if redisURL == "" {
+		return nil, nil
 	}
-	
-	// Enable TLS for cloud Redis providers like Upstash
-	if useTLS {
-		opts.TLSConfig = &tls.Config{
-			MinVersion: tls.VersionTLS12,
-		}
+
+	opt, err := redis.ParseURL(redisURL)
+	if err != nil {
+		return nil, err
 	}
-	
-	client := redis.NewClient(opts)
-	return &RedisClient{client: client}
+
+	client := redis.NewClient(opt)
+
+	// Test connection
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := client.Ping(ctx).Err(); err != nil {
+		log.Printf("Warning: Redis ping failed: %v", err)
+	} else {
+		log.Println("Redis connected successfully")
+	}
+
+	return &RedisClient{client: client}, nil
 }
 
 func (r *RedisClient) Close() error {
@@ -119,4 +128,3 @@ func (r *RedisClient) CheckRateLimit(ctx context.Context, key string, limit int,
 
 	return current <= int64(limit), nil
 }
-

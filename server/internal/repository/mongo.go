@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/skyquest/server/internal/models"
@@ -32,6 +33,7 @@ func NewMongoRepository(uri, dbName string) (*MongoRepository, error) {
 	if err := client.Ping(ctx, nil); err != nil {
 		return nil, err
 	}
+	log.Println("MongoDB connected successfully")
 
 	db := client.Database(dbName)
 
@@ -167,7 +169,7 @@ func (r *MongoRepository) SaveScore(ctx context.Context, session *models.GameSes
 
 func (r *MongoRepository) GetLeaderboard(ctx context.Context, difficulty models.Difficulty, limit int) ([]models.LeaderboardEntry, error) {
 	opts := options.Find().SetSort(bson.D{{Key: "totalScore", Value: -1}}).SetLimit(int64(limit))
-	
+
 	filter := bson.M{}
 	if difficulty != "" {
 		filter["difficulty"] = difficulty
@@ -214,4 +216,3 @@ func (r *MongoRepository) GetUserRank(ctx context.Context, username string, diff
 
 	return int(count) + 1, nil
 }
-

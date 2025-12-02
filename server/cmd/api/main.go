@@ -41,7 +41,10 @@ func main() {
 	}
 
 	// Initialize Redis
-	redisClient := repository.NewRedisClient(cfg.RedisAddr, cfg.RedisPassword, cfg.RedisTLS)
+	redisClient, err := repository.NewRedisClient(cfg.RedisURL)
+	if err != nil {
+		log.Printf("Warning: Failed to connect to Redis: %v", err)
+	}
 	if redisClient != nil {
 		defer redisClient.Close()
 	}

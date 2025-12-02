@@ -149,12 +149,14 @@ func (s *FlightService) StartPolling(hub *websocket.Hub, interval time.Duration)
 func (s *FlightService) fetchAndBroadcast(hub *websocket.Hub) {
 	ctx := context.Background()
 
-	// Check cache first
-	cached, err := s.redis.GetCachedFlights(ctx)
-	if err == nil && cached != nil {
-		s.updateFlights(cached)
-		hub.BroadcastFlights(cached)
-		return
+	// Check cache first (if Redis is available)
+	if s.redis != nil {
+		cached, err := s.redis.GetCachedFlights(ctx)
+		if err == nil && cached != nil {
+			s.updateFlights(cached)
+			hub.BroadcastFlights(cached)
+			return
+		}
 	}
 
 	// Fetch from API
@@ -167,9 +169,11 @@ func (s *FlightService) fetchAndBroadcast(hub *websocket.Hub) {
 	// Enrich flights with airport data and coordinates
 	s.enrichFlights(flights)
 
-	// Cache the results
-	if err := s.redis.CacheFlights(ctx, flights); err != nil {
-		log.Printf("Error caching flights: %v", err)
+	// Cache the results (if Redis is available)
+	if s.redis != nil {
+		if err := s.redis.CacheFlights(ctx, flights); err != nil {
+			log.Printf("Error caching flights: %v", err)
+		}
 	}
 
 	s.updateFlights(flights)
