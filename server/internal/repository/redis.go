@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"time"
 
@@ -18,12 +19,21 @@ type RedisClient struct {
 	client *redis.Client
 }
 
-func NewRedisClient(addr, password string) *RedisClient {
-	client := redis.NewClient(&redis.Options{
+func NewRedisClient(addr, password string, useTLS bool) *RedisClient {
+	opts := &redis.Options{
 		Addr:     addr,
 		Password: password,
 		DB:       0,
-	})
+	}
+	
+	// Enable TLS for cloud Redis providers like Upstash
+	if useTLS {
+		opts.TLSConfig = &tls.Config{
+			MinVersion: tls.VersionTLS12,
+		}
+	}
+	
+	client := redis.NewClient(opts)
 	return &RedisClient{client: client}
 }
 

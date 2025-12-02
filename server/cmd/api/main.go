@@ -41,7 +41,7 @@ func main() {
 	}
 
 	// Initialize Redis
-	redisClient := repository.NewRedisClient(cfg.RedisAddr, cfg.RedisPassword)
+	redisClient := repository.NewRedisClient(cfg.RedisAddr, cfg.RedisPassword, cfg.RedisTLS)
 	if redisClient != nil {
 		defer redisClient.Close()
 	}

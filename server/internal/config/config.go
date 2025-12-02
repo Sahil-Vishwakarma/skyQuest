@@ -10,6 +10,7 @@ type Config struct {
 	MongoDB             string
 	RedisAddr           string
 	RedisPassword       string
+	RedisTLS            bool
 	AviationStackAPIKey string
 }
 
@@ -20,6 +21,7 @@ func Load() *Config {
 		MongoDB:             getEnv("MONGO_DB", "skyquest"),
 		RedisAddr:           getEnv("REDIS_ADDR", "localhost:6379"),
 		RedisPassword:       getEnv("REDIS_PASSWORD", ""),
+		RedisTLS:            getEnv("REDIS_TLS", "false") == "true",
 		AviationStackAPIKey: getEnv("AVIATIONSTACK_API_KEY", ""),
 	}
 }
