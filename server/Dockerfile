@@ -1,7 +1,7 @@
 # Build stage
 FROM golang:1.21-alpine AS builder
 
-WORKDIR /app
+WORKDIR /server
 
 # Install dependencies
 RUN apk add --no-cache git
@@ -24,7 +24,7 @@ RUN apk --no-cache add ca-certificates tzdata
 WORKDIR /root/
 
 # Copy the binary from builder
-COPY --from=builder /app/main .
+COPY --from=builder /server/main .
 
 # Expose port
 EXPOSE 8080
